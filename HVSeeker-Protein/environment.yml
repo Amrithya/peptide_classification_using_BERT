@@ -1,0 +1,16 @@
+name: hvseekerProt
+channels:
+  - pytorch
+  - nvidia
+  - anaconda
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - numpy=1.23.5
+  - pandas=2.0.3
+  - scikit-learn=1.2.2
+  - scikit-optimize=0.9.0
+  #- tensorflow=2.12.0
+  #- cudatoolkit 
+  #- cudnn 
