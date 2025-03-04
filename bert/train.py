@@ -7,16 +7,28 @@ import shutil
 import matplotlib.pyplot as plt  # Add this for plotting
 from data.dataloader import load_data
 from model.network import create_model, cri_opt_sch
-from model.utils import train, validate, test
+from model.utils import train, validate, test,calculate_f1_score
+import csv
+from sklearn.metrics import f1_score
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Device: {device}\n')
 
+def save_metrics_to_csv(epoch, val_acc, f1_score, file_path):
+    file_exists = os.path.isfile(file_path)
+    
+    with open(file_path, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(['Epoch', 'Validation Accuracy', 'F1 Score'])
+        writer.writerow([epoch, val_acc, f1_score])
+
 def train_model():
     print(f'{"="*30}{"TRAINING":^20}{"="*30}')
-
+    csv_file_path = f'{save_dir}/metrics.csv' 
     best_acc = 0
-    val_accuracies = []  # List to store validation accuracies
+    val_accuracies = []
+    f1_scores = []  # List to store validation accuracies
     for epoch in range(config['epochs']):
         train_loss = train(model, train_data_loader, optimizer, criterion, scheduler, device)
         curr_lr = optimizer.param_groups[0]['lr']
@@ -25,7 +37,12 @@ def train_model():
         val_loss, val_acc = validate(model, val_data_loader, criterion, device)
         print(f'Epoch {epoch+1}/{config["epochs"]} - Validation Loss: {val_loss}\tValidation Accuracy: {val_acc}\n')
         
-        val_accuracies.append(val_acc)  # Save validation accuracy for the epoch
+        val_accuracies.append(val_acc)  
+
+        f1 = calculate_f1_score(model, val_data_loader, device)
+        print(f'Epoch {epoch+1}/{config["epochs"]} - F1 Score: {f1}\n')
+        f1_scores.append(f1)
+        save_metrics_to_csv(epoch + 1, val_acc, f1, csv_file_path)        
         
         scheduler.step(val_acc)
         if not config['debug']:
@@ -51,12 +68,12 @@ def train_model():
             print('Model Saved\n')
     
     # Plot validation accuracy after training is complete
-    plt.plot(range(1, config['epochs'] + 1), val_accuracies, label='Validation Accuracy')
+    plt.plot(range(1, config['epochs'] + 1), f1_scores, label='F1-score')
     plt.xlabel('Epoch')
-    plt.ylabel('Validation Accuracy')
-    plt.title('Validation Accuracy vs Epochs')
+    plt.ylabel('F1-score')
+    plt.title('F1-score vs Epochs')
     plt.grid(True)
-    plt.savefig(f'{save_dir}/val_accuracy_plot.png')  # Save the plot as an image
+    plt.savefig(f'{save_dir}/f1_plot.png')  # Save the plot as an image
     plt.show()
 
     wandb.finish()

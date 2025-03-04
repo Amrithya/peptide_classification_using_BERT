@@ -1,6 +1,7 @@
 import torch
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 
 
 def train(model, dataloader, optimizer, criterion, scheduler, device):
@@ -52,6 +53,25 @@ def validate(model, dataloader, criterion, device):
     accuracy = 100 * accuracy_score(ground_truth, predictions)
 
     return total_loss, accuracy
+
+def calculate_f1_score(model, dataloader, device):
+    model.eval()
+    ground_truth = []
+    predictions = []
+    
+    for batch in tqdm(dataloader):
+        inputs = batch['input_ids'].to(device)
+        attention_mask = batch['attention_mask'].to(device)
+        labels = batch['labels'].to(device)
+        
+        with torch.inference_mode():
+            logits = model(inputs, attention_mask).squeeze(1)
+        
+        preds = torch.where(logits > 0.5, 1, 0)
+        predictions.extend(preds.cpu().tolist())
+        ground_truth.extend(labels.cpu().tolist())
+
+    return f1_score(ground_truth, predictions, average='macro')
 
 
 def test(model, dataloader, device):

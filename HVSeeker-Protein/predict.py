@@ -282,9 +282,9 @@ if __name__ == "__main__":
     print(args.evaluation)
  
     if args.evaluation == True:
-        run_model_prediction([35, 0.6930443135406078, 3, 2, 0.39657786522163363, 3.8602329788847605e-05, 0.00035016815751852485, 0.0011187914605146963], output_file = args.output_path, seq_len=args.seq_len, test_file=args.test_file, modelpath=args.modelpath)
+        run_model_prediction([50, 0.75, 3, 2, 0.39657786522163363, 3.8602329788847605e-05, 0.0001, 0.0011187914605146963], output_file = args.output_path, seq_len=args.seq_len, test_file=args.test_file, modelpath=args.modelpath)
 
     else:
-        run_model_prediction_only([35, 0.6930443135406078, 3, 2, 0.39657786522163363, 3.8602329788847605e-05, 0.00035016815751852485, 0.0011187914605146963], output_file = args.output_path, seq_len=args.seq_len, test_file=args.test_file, modelpath=args.modelpath)
+        run_model_prediction_only([50, 0.75, 3, 2, 0.39657786522163363, 3.8602329788847605e-05, 0.0001, 0.0011187914605146963], output_file = args.output_path, seq_len=args.seq_len, test_file=args.test_file, modelpath=args.modelpath)
 
     
